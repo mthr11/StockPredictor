@@ -45,13 +45,13 @@ MultiLayerPerceptron::~MultiLayerPerceptron()
 
 vector<float> MultiLayerPerceptron::predict(vector<float>& data)
 {
-	vector<float> a1 = Math::dot(data, W[0]);	// + b[0];
+	vector<float> a1 = Math::dot(data, W[0]) + b[0];
 	vector<float> z1;
 	for (auto& a : a1) {
 		z1.push_back(Math::sigmoid(a));
 	}
 
-	vector<float> a2 = Math::dot(z1, W[1]);		// + b[1];
+	vector<float> a2 = Math::dot(z1, W[1]) + b[1];
 	vector<float> y;
 	for (int i = 0; i < (int)a2.size(); i++) {
 		y.push_back(Math::softmax(a2, i));

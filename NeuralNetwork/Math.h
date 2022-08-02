@@ -6,13 +6,29 @@
 
 using namespace std;
 
+/*========== 演算子オーバーロード ==========*/
+
+/* ベクトルの和を求める */
+template <class T>
+vector<T> operator+(const vector<T>& a, const vector<T>& b) {
+	vector<T> result = a;
+
+	for (int i = 0; i < (int)a.size(); i++) {
+		result[i] += b[i];
+	}
+
+	return result;
+}
+	
 class Math
 {
 public:
+	/* シグモイド関数 */
 	static float sigmoid(const float& x) {
 		return 1 / (1 + exp(-x));
 	}
 
+	/* ソフトマックス関数 */
 	static float softmax(const vector<float>& a, const int& index) {
 		float c = *max_element(a.begin(), a.end());
 		vector<float> exp_a = a;
@@ -24,12 +40,15 @@ public:
 		return exp_a[index] / accumulate(exp_a.begin(), exp_a.end(), 0.f);
 	}
 
-	/* [ベクトル] * [行列]を求める */
+	/* [行ベクトル] * [行列]を求める */
 	static vector<float> dot(const vector<float>& a, const vector<vector<float>>& b) {
-		vector<float> result = vector<float>(b[0].size());
+		vector<float> result;
 
 		for (int i = 0; i < (int)b[0].size(); i++) {
-			float tmp = a[0] * b[0][i] + a[1] * b[1][i];
+			float tmp = 0;
+			for (int j = 0; j < (int)b.size(); j++) {
+				tmp += a[j] * b[j][i];
+			}
 			result.push_back(tmp);
 		}
 
