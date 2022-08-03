@@ -43,29 +43,45 @@ MultiLayerPerceptron::~MultiLayerPerceptron()
 {
 }
 
-vector<float> MultiLayerPerceptron::predict(vector<float>& data)
+vector<float> MultiLayerPerceptron::predict(vector<float>& input_data)
 {
-	vector<float> a1 = Math::dot(data, W[0]) + b[0];
+	/* “ü—Í‘w‚©‚ç1‘w–Ú‚Ö‚ÌŒvZ */
+	vector<float> a1 = Math::dot(input_data, W[0]) + b[0];
 	vector<float> z1;
-	for (auto& a : a1) {
+	for (auto& a : a1)
 		z1.push_back(Math::sigmoid(a));
-	}
 
+	/* 1‘w–Ú‚©‚ço—Í‘w‚Ö‚ÌŒvZ */
 	vector<float> a2 = Math::dot(z1, W[1]) + b[1];
-	vector<float> y;
+	vector<float> output_data;
 	for (int i = 0; i < (int)a2.size(); i++) {
-		y.push_back(Math::softmax(a2, i));
+		output_data.push_back(Math::softmax(a2, i));
 	}
 
-	return y;
+	return output_data;
 }
 
-float MultiLayerPerceptron::loss(vector<float>& input_data, vector<float>& train_data)
+float MultiLayerPerceptron::loss(vector<float>& input_data, vector<int>& train_data)
 {
-	return 0.0f;
+	vector<float> output_data = predict(input_data);
+
+	return Math::CrossEntropyEroor(output_data, train_data);
 }
 
-float MultiLayerPerceptron::accuracy(vector<float>& input_data, vector<float>& train_data)
+float MultiLayerPerceptron::accuracy(vector<vector<float>>& input_data, vector<vector<int>>& train_data)
 {
-	return 0.0f;
+	vector<vector<float>> output_data;
+	for (auto x : input_data)
+		output_data.push_back(predict(x));
+
+	int cnt = 0;
+	for (int i = 0; i < (int)input_data.size(); i++) {
+		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
+		auto max_t = max_element(train_data[i].begin(), train_data[i].end());
+
+		if (max_o - output_data[i].begin() == max_t - train_data[i].begin())
+			cnt++;
+	}
+
+	return (float)cnt / (float)input_data.size();
 }

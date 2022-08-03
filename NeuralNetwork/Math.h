@@ -33,11 +33,21 @@ public:
 		float c = *max_element(a.begin(), a.end());
 		vector<float> exp_a = a;
 
-		for (auto& b : exp_a) {
+		for (auto& b : exp_a)
 			b = exp(b - c);
-		}
 
 		return exp_a[index] / accumulate(exp_a.begin(), exp_a.end(), 0.f);
+	}
+
+	/* 交差エントロピー誤差(訓練データが単一のラベルの場合) */
+	static float CrossEntropyEroor(const vector<float>& y, const int& t) {
+		return -log(y[t] + FLT_MIN);
+	}
+
+	/* 交差エントロピー誤差(訓練データがone-hotの場合) */
+	static float CrossEntropyEroor(const vector<float>& y, const vector<int>& t) {
+		auto itr = find(t.begin(), t.end(), 1);
+		return CrossEntropyEroor(y, itr - t.begin());
 	}
 
 	/* [行ベクトル] * [行列]を求める */

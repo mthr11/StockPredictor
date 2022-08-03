@@ -10,9 +10,9 @@ public:
 	MultiLayerPerceptron(int input_size, int hidden_size, int output_size);
 	~MultiLayerPerceptron();
 
-	vector<float> predict(vector<float>& data);	// 推論を行う
-	float loss(vector<float>& input_data, vector<float>& train_data);	// 損失関数の値を計算する
-	float accuracy(vector<float>& input_data, vector<float>& train_data);	// 予測精度を求める
+	vector<float> predict(vector<float>& input_data);	// 推論を行う
+	float loss(vector<float>& input_data, vector<int>& train_data);	// 損失関数の値を計算する
+	float accuracy(vector<vector<float>>& input_data, vector<vector<int>>& train_data);	// 各ラベルに対する確率を求める
 private:
 	/* 各層の重みとバイアス */
 	vector<vector<vector<float>>> W;
