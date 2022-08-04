@@ -12,9 +12,16 @@ int main(void) {
 	vector<vector<float>> w = { {1,2,3,4,5},{2,3,4,5,6}, {3,4,5,6,7}, {4,5,6,7,8} };
 	vector<vector<float>> a = { {0,1},{2,3},{4,5} };
 	vector<vector<float>> b = { {0,1,2,3},{4,5,6,7} };
-	
+	vector<vector<float>> tmp;
 
-	vector<float> y = nnet->gradient(x, t);
+	//tmp = Math::transpose(x);
+	//for (auto& p : tmp) {
+	//	for (auto& q : p)
+	//		cout << q << " ";
+	//	cout << endl;
+	//}
+
+	nnet->gradient(x, t);
 	//cout << nnet->accuracy(x, t) << endl;
 
 

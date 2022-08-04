@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ public:
 	float accuracy(vector<vector<float>>& input_data, vector<int>& train_data) const;
 	//float accuracy(vector<vector<float>>& input_data, vector<int>& train_data) const;	// 訓練データが単一のラベルの場合
 	/* 誤差逆伝播法 */
-	vector<float> gradient(vector<vector<float>>& input_data, vector<int>& train_data) const;
+	void gradient(const vector<vector<float>>& input_data, const vector<int>& train_data);
 	//vector<float> gradient(vector<vector<float>>& input_data, vector<int>& train_data) const;	// 訓練データが単一のラベルの場合
 private:
 	///* 教師データと評価データそれぞれの入力値と出力値 */
@@ -30,6 +31,10 @@ private:
 	/* 各層の重みとバイアス */
 	vector<vector<vector<float>>> W;
 	vector<vector<float>> b;
+
+	/* 勾配 */
+	vector<vector<vector<float>>> dW;
+	vector<vector<float>> db;
 
 	/* 各層の数 */
 	int input_size;

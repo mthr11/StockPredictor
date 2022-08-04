@@ -66,4 +66,17 @@ public:
 
 		return result;
 	}
+
+	/* “]’us—ñ */
+	static vector<vector<float>> transpose(const vector<vector<float>>& x) {
+		vector<vector<float>> result(x[0].size());
+
+		for (int i = 0; i < (int)x[0].size(); i++) {
+			for (int j = 0; j < (int)x.size(); j++) {
+				result[i].push_back(x[j][i]);
+			}
+		}
+
+		return result;
+	}
 };

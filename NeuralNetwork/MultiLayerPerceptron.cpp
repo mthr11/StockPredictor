@@ -12,6 +12,8 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 	/* ƒƒ“ƒo•Ï”‰Šú‰» */
 	W = vector<vector<vector<float>>>(2);
 	b = vector<vector<float>>(2);
+	dW = vector<vector<vector<float>>>(2);
+	db = vector<vector<float>>(2);
 
 	W[0] = vector<vector<float>>(input_size);
 	W[1] = vector<vector<float>>(hidden_size);
@@ -134,10 +136,35 @@ float MultiLayerPerceptron::accuracy(vector<vector<float>>& input_data, vector<i
 //	return (float)cnt / (float)input_data.size();
 //}
 
-vector<float> MultiLayerPerceptron::gradient(vector<vector<float>>& input_data, vector<int>& train_data) const
+void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, const vector<int>& train_data)
 {
 	/*========== forward ==========*/
-	vector<vector<float>> output_data = predict(input_data);
+	/* “ü—Í‘w‚©‚ç1‘w–Ú‚Ö‚ÌŒvZ */
+	vector<vector<float>> a1 = Math::dot(input_data, W[0]);
+	for (auto& p : a1)
+		p = p + b[0];
+	vector<vector<float>> z1 = a1;
+	for (auto& p : z1)
+		for (auto& q : p)
+			q = Math::sigmoid(q);
+
+	/* 1‘w–Ú‚©‚ço—Í‘w‚Ö‚ÌŒvZ */
+	vector<vector<float>> a2 = Math::dot(z1, W[1]);
+	for (auto& p : a2)
+		p = p + b[1];
+	vector<vector<float>> output_data = a2;
+	for (int i = 0; i < (int)a2.size(); i++) {
+		for (int j = 0; j < (int)a2[0].size(); j++) {
+			output_data[i][j] = Math::softmax(a2[i], j);
+		}
+	}
+
+	cout << "output:\n";
+	for (auto& p : output_data) {
+		for (auto& q : p)
+			cout << q << " ";
+		cout << endl;
+	}
 
 	/*========== backward ==========*/
 	/* Softmax with Loss Layer */
@@ -152,9 +179,14 @@ vector<float> MultiLayerPerceptron::gradient(vector<vector<float>>& input_data, 
 		cout << endl;
 	}
 
-	/**/
-
-	return output_data[0];
+	/* Affine Layer */
+	dW[1] = Math::dot(Math::transpose(z1), dl);
+	cout << "\ndW1:\n";
+	for (auto& p : dW[1]) {
+		for (auto& q : p)
+			cout << q << " ";
+		cout << endl;
+	}
 }
 
 //vector<float> MultiLayerPerceptron::gradient(vector<vector<float>>& input_data, vector<int>& train_data) const
