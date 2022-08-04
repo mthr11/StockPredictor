@@ -40,26 +40,28 @@ public:
 	}
 
 	/* 交差エントロピー誤差(訓練データが単一のラベルの場合) */
-	static float CrossEntropyEroor(const vector<float>& y, const int& t) {
+	static float CrossEntropyLoss(const vector<float>& y, const int& t) {
 		return -log(y[t] + FLT_MIN);
 	}
 
 	/* 交差エントロピー誤差(訓練データがone-hotの場合) */
-	static float CrossEntropyEroor(const vector<float>& y, const vector<int>& t) {
+	static float CrossEntropyLoss(const vector<float>& y, const vector<int>& t) {
 		auto itr = find(t.begin(), t.end(), 1);
-		return CrossEntropyEroor(y, itr - t.begin());
+		return CrossEntropyLoss(y, itr - t.begin());
 	}
 
-	/* [行ベクトル] * [行列]を求める */
-	static vector<float> dot(const vector<float>& a, const vector<vector<float>>& b) {
-		vector<float> result;
+	/* 行列積 */
+	static vector<vector<float>> dot(const vector<vector<float>>& a, const vector<vector<float>>& b) {
+		vector<vector<float>> result(a.size());
 
 		for (int i = 0; i < (int)b[0].size(); i++) {
-			float tmp = 0;
-			for (int j = 0; j < (int)b.size(); j++) {
-				tmp += a[j] * b[j][i];
+			for (int j = 0; j < (int)a.size(); j++) {
+				float tmp = 0;
+				for (int k = 0; k < (int)b.size(); k++) {
+					tmp += a[j][k] * b[k][i];
+				}
+				result[j].push_back(tmp);
 			}
-			result.push_back(tmp);
 		}
 
 		return result;

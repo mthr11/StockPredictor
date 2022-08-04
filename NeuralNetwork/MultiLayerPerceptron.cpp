@@ -3,16 +3,20 @@
 #include <random>
 #include <iostream>
 
-MultiLayerPerceptron::MultiLayerPerceptron(int input_size, int hidden_size, int output_size) {
+MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
+{
+	input_size = input;
+	hidden_size = hidden;
+	output_size = output;
 
-	/* •Ï”‰Šú‰» */
+	/* ƒƒ“ƒo•Ï”‰Šú‰» */
 	W = vector<vector<vector<float>>>(2);
 	b = vector<vector<float>>(2);
 
 	W[0] = vector<vector<float>>(input_size);
 	W[1] = vector<vector<float>>(hidden_size);
-	b[0] = vector<float>(hidden_size, 0);
-	b[1] = vector<float>(output_size, 0);
+	b[0] = vector<float>(hidden_size, -10);
+	b[1] = vector<float>(output_size, -10);
 
 	/* ‹[——”(ƒƒ‹ƒZƒ“ƒkEƒcƒCƒXƒ^)‚Ì¶¬ */
 	random_device rnd;
@@ -37,51 +41,123 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input_size, int hidden_size, int 
 		}
 		//cout << endl;
 	}
+
+	W[0] = { {0.1f,0.2f,0.3f,0.4f,0.5f},{0.2f,0.3f,0.4f,0.5f,0.6f}, {0.3f,0.4f,0.5f,0.6f,0.7f}, {0.4f,0.5f,0.6f,0.7f,0.8f} };
+	W[1] = { {0.1f,0.2f,0.3f},{0.2f,0.3f,0.4f},{0.3f,0.4f,0.5f},{0.4f,0.5f,0.6f},{0.5f,0.6f,0.7f} };
 }
 
 MultiLayerPerceptron::~MultiLayerPerceptron()
 {
 }
 
-vector<float> MultiLayerPerceptron::predict(vector<float>& input_data)
+vector<vector<float>> MultiLayerPerceptron::predict(vector<vector<float>>& input_data) const
 {
 	/* “ü—Í‘w‚©‚ç1‘w–Ú‚Ö‚ÌŒvZ */
-	vector<float> a1 = Math::dot(input_data, W[0]) + b[0];
-	vector<float> z1;
-	for (auto& a : a1)
-		z1.push_back(Math::sigmoid(a));
+	vector<vector<float>> a1 = Math::dot(input_data, W[0]);
+	for (auto& p : a1)
+		p = p + b[0];
+	vector<vector<float>> z1 = a1;
+	for (auto& p : z1)
+		for (auto& q : p)
+			q = Math::sigmoid(q);
 
 	/* 1‘w–Ú‚©‚ço—Í‘w‚Ö‚ÌŒvZ */
-	vector<float> a2 = Math::dot(z1, W[1]) + b[1];
-	vector<float> output_data;
+	vector<vector<float>> a2 = Math::dot(z1, W[1]);
+	for (auto& p : a2)
+		p = p + b[1];
+	vector<vector<float>> output_data = a2;
 	for (int i = 0; i < (int)a2.size(); i++) {
-		output_data.push_back(Math::softmax(a2, i));
+		for (int j = 0; j < (int)a2[0].size(); j++) {
+			output_data[i][j] = Math::softmax(a2[i], j);
+		}
+	}
+
+	cout << "output:\n";
+	for (auto& p : output_data){
+		for (auto& q : p)
+			cout << q << " ";
+		cout << endl;
 	}
 
 	return output_data;
 }
 
-float MultiLayerPerceptron::loss(vector<float>& input_data, vector<int>& train_data)
+vector<float> MultiLayerPerceptron::loss(vector<vector<float>>& input_data, vector<int>& train_data) const
 {
-	vector<float> output_data = predict(input_data);
+	vector<vector<float>> output_data = predict(input_data);
+	vector<float> result;
 
-	return Math::CrossEntropyEroor(output_data, train_data);
+	for (int i = 0; i < (int)input_data.size(); i++) {
+		float e = Math::CrossEntropyLoss(output_data[i], train_data[i]);
+		result.push_back(e);
+	}
+
+	return result;
 }
 
-float MultiLayerPerceptron::accuracy(vector<vector<float>>& input_data, vector<vector<int>>& train_data)
+//float MultiLayerPerceptron::loss(vector<float>& input_data, int& train_data) const
+//{
+//	vector<float> output_data = predict(input_data);
+//
+//	return Math::CrossEntropyEroor(output_data, train_data);
+//}
+
+float MultiLayerPerceptron::accuracy(vector<vector<float>>& input_data, vector<int>& train_data) const
 {
-	vector<vector<float>> output_data;
-	for (auto x : input_data)
-		output_data.push_back(predict(x));
+	vector<vector<float>> output_data = predict(input_data);
 
 	int cnt = 0;
 	for (int i = 0; i < (int)input_data.size(); i++) {
 		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
-		auto max_t = max_element(train_data[i].begin(), train_data[i].end());
 
-		if (max_o - output_data[i].begin() == max_t - train_data[i].begin())
+		if (max_o - output_data[i].begin() == train_data[i])
 			cnt++;
 	}
 
 	return (float)cnt / (float)input_data.size();
 }
+
+//float MultiLayerPerceptron::accuracy(vector<vector<float>>& input_data, vector<int>& train_data) const
+//{
+//	vector<vector<float>> output_data;
+//	for (auto x : input_data)
+//		output_data.push_back(predict(x));
+//
+//	int cnt = 0;
+//	for (int i = 0; i < (int)input_data.size(); i++) {
+//		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
+//
+//		if (max_o - output_data[i].begin() == train_data[i])
+//			cnt++;
+//	}
+//
+//	return (float)cnt / (float)input_data.size();
+//}
+
+vector<float> MultiLayerPerceptron::gradient(vector<vector<float>>& input_data, vector<int>& train_data) const
+{
+	/*========== forward ==========*/
+	vector<vector<float>> output_data = predict(input_data);
+
+	/*========== backward ==========*/
+	/* Softmax with Loss Layer */
+	vector<vector<float>> dl = output_data;
+	for (int i = 0; i < (int)input_data.size(); i++) {
+		dl[i][train_data[i]]--;
+	}
+	cout << "\ndl:\n";
+	for (auto& p : dl) {
+		for (auto& q : p)
+			cout << q << " ";
+		cout << endl;
+	}
+
+	/**/
+
+	return output_data[0];
+}
+
+//vector<float> MultiLayerPerceptron::gradient(vector<vector<float>>& input_data, vector<int>& train_data) const
+//{
+//
+//}
