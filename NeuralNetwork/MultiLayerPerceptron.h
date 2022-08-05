@@ -11,23 +11,19 @@ public:
 	MultiLayerPerceptron(int input, int hidden, int output);
 	~MultiLayerPerceptron();
 
-	vector<vector<float>> predict(vector<vector<float>>& input_data) const;	// 推論を行う
+	/* 推論を行う */
+	vector<vector<float>> predict(const vector<vector<float>>& input_data);
 	/* 損失関数 */
-	vector<float> loss(vector<vector<float>>& input_data, vector<int>& train_data) const;
-	//float loss(vector<float>& input_data, int& train_data) const;	// 訓練データが単一のラベルの場合
+	float loss(const vector<vector<float>>& input_data, const vector<int>& train_data);
 	/* 精度を求める */
-	float accuracy(vector<vector<float>>& input_data, vector<int>& train_data) const;
-	//float accuracy(vector<vector<float>>& input_data, vector<int>& train_data) const;	// 訓練データが単一のラベルの場合
+	float accuracy(const vector<vector<float>>& input_data, const vector<int>& train_data);
 	/* 誤差逆伝播法 */
 	void gradient(const vector<vector<float>>& input_data, const vector<int>& train_data);
-	//vector<float> gradient(vector<vector<float>>& input_data, vector<int>& train_data) const;	// 訓練データが単一のラベルの場合
+	/* 数値微分(誤差逆伝播法の勾配確認用) */
+	void numerical_gradient(const vector<vector<float>>& input_data, const vector<int>& train_data, vector<float>& x);
+	/* 勾配降下法 */
+	void gradient_descent();
 private:
-	///* 教師データと評価データそれぞれの入力値と出力値 */
-	//vector<vector<float>> x_train;
-	//vector<float> t_train;	// 正解ラベルのみ(not one-hot)
-	//vector<vector<float>> x_test;
-	//vector<float> t_test;	// 正解ラベルのみ(not one-hot)
-
 	/* 各層の重みとバイアス */
 	vector<vector<vector<float>>> W;
 	vector<vector<float>> b;
@@ -35,6 +31,8 @@ private:
 	/* 勾配 */
 	vector<vector<vector<float>>> dW;
 	vector<vector<float>> db;
+
+	float learning_rate;	// 学習率
 
 	/* 各層の数 */
 	int input_size;

@@ -41,7 +41,8 @@ public:
 
 	/* 交差エントロピー誤差(訓練データが単一のラベルの場合) */
 	static float CrossEntropyLoss(const vector<float>& y, const int& t) {
-		return -log(y[t] + FLT_MIN);
+		float delta = 1e-7f;
+		return -log(y[t] + delta);
 	}
 
 	/* 交差エントロピー誤差(訓練データがone-hotの場合) */
