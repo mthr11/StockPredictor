@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
+#include <random>
 #include <numeric>
 #include <vector>
 
@@ -19,6 +20,25 @@ vector<T> operator+(const vector<T>& a, const vector<T>& b) {
 
 	return result;
 }
+
+double get_randf(const double min, const double max) {
+	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
+	random_device rnd;
+	mt19937 mt(rnd());
+	uniform_real_distribution<> rndf(min, max);
+
+	return rndf(mt);
+}
+
+int get_randi(const int min, const int max) {
+	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
+	random_device rnd;
+	mt19937 mt(rnd());
+	uniform_int_distribution<> rndi(min, max);
+
+	return rndi(mt);
+}
+
 	
 class Math
 {
@@ -40,15 +60,9 @@ public:
 	}
 
 	/* 交差エントロピー誤差(訓練データが単一のラベルの場合) */
-	static float CrossEntropyLoss(const vector<float>& y, const int& t) {
+	static float cross_entropy_loss(const vector<float>& y, const int& t) {
 		float delta = 1e-7f;
 		return -log(y[t] + delta);
-	}
-
-	/* 交差エントロピー誤差(訓練データがone-hotの場合) */
-	static float CrossEntropyLoss(const vector<float>& y, const vector<int>& t) {
-		auto itr = find(t.begin(), t.end(), 1);
-		return CrossEntropyLoss(y, itr - t.begin());
 	}
 
 	/* 行列積 */

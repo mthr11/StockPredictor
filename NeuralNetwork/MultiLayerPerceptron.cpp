@@ -1,10 +1,66 @@
 #include "MultiLayerPerceptron.h"
 #include "Math.h"
-#include <random>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+
+int load_data(const string file_name, vector<vector<float>>& x, vector<int>& t)
+{
+	fstream ifs(file_name);
+
+	if (!ifs) {
+		cout << "Failed to open file." << endl;
+		return 0;
+	}
+
+	int i = 0;
+	string str;
+
+	/* 1行読み込み */
+	while (getline(ifs, str)) {
+		int j = 0;
+		string token;
+		stringstream ss(str);
+
+		x.push_back(vector<float>());
+
+		/* 空白区切りで読み込み */
+		while (getline(ss, token, ' ')) {
+			float tmp = stof(token);
+			if (j < 4) {
+				x[i].push_back(tmp);
+				//cout << x[i].back() << "\t";
+			}
+			else {
+				tmp--;
+				t.push_back((int)tmp);
+				//cout << t.back() << endl;
+			}
+			j++;
+		}
+		i++;
+	}
+
+	return 1;
+}
+
+void load_batch(const vector<vector<float>>& src_x, const vector<int>& src_t,
+		vector<vector<float>>& dst_x, vector<int>& dst_t, const int batch_size)
+{
+	for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < batch_size / 3; i++) {
+			int r = get_randi(0, src_t.size() / 3 - 1);
+			r += src_t.size() / 3 * j;
+
+			dst_x.push_back(src_x[r]);
+			dst_t.push_back(src_t[r]);
+			//cout << r << " " << dst_x.back().back() << " " << dst_t.back() << endl;
+		}
+	}
+}
 
 MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
-	:learning_rate(0.1f)
+	:learning_rate(0.01f)
 {
 	input_size = input;
 	hidden_size = hidden;
@@ -12,24 +68,20 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 
 	/* メンバ変数初期化 */
 	W = vector<vector<vector<float>>>(2);
-	b = vector<vector<float>>(2);
-	dW = vector<vector<vector<float>>>(2);
-	db = vector<vector<float>>(2);
-
 	W[0] = vector<vector<float>>(input_size);
 	W[1] = vector<vector<float>>(hidden_size);
+
+	b = vector<vector<float>>(2);
 	b[0] = vector<float>(hidden_size, -10);
 	b[1] = vector<float>(output_size, -10);
 
-	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
-	random_device rnd;
-	mt19937 mt(rnd());
-	uniform_real_distribution<> rRnd(-1, 1);
+	dW = vector<vector<vector<float>>>(2);
+	db = vector<vector<float>>(2);
 
 	/* 重みを乱数で初期化 */
 	for(int i = 0;i<input_size;i++){
 		for (int j = 0; j < hidden_size; j++) {
-			float r = (float)rRnd(mt);
+			float r = (float)get_randf(-1, 1);
 			W[0][i].push_back(r);
 			//cout << r << " ";
 		}
@@ -38,7 +90,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 	//cout << endl;
 	for (int i = 0; i < hidden_size; i++) {
 		for (int j = 0; j < output_size; j++) {
-			float r = (float)rRnd(mt);
+			float r = (float)get_randf(-1, 1);
 			W[1][i].push_back(r);
 			//cout << r << " ";
 		}
@@ -91,7 +143,7 @@ float MultiLayerPerceptron::loss(const vector<vector<float>>& input_data, const 
 	float sum = 0.f;
 
 	for (int i = 0; i < (int)input_data.size(); i++)
-		sum += Math::CrossEntropyLoss(output_data[i], train_data[i]);
+		sum += Math::cross_entropy_loss(output_data[i], train_data[i]);
 
 	return sum / (float)input_data.size();	// データ1つあたりの誤差を求める
 }
@@ -141,12 +193,12 @@ void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, con
 	//	cout << endl;
 	//}
 
-	cout << "\noutput:\n";
-	for (auto& p : output_data) {
-		for (auto& q : p)
-			cout << q << " ";
-		cout << endl;
-	}
+	//cout << "\noutput:\n";
+	//for (auto& p : output_data) {
+	//	for (auto& q : p)
+	//		cout << q << " ";
+	//	cout << endl;
+	//}
 
 	/*========== backward ==========*/
 	/* Softmax with Loss Layer */
