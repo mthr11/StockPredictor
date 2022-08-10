@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <unordered_map>
+#include <string>
 
 using namespace std;
 
@@ -16,6 +16,8 @@ public:
 	// コンストラクタとデストラクタ
 	MultiLayerPerceptron(int input, int hidden, int output);
 	~MultiLayerPerceptron();
+
+	void set_learning_rate(const float& lr) { learning_rate = lr; }
 
 	// 推論を行う
 	vector<vector<float>> predict(const vector<vector<float>>& input_data);

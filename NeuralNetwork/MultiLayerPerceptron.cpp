@@ -9,7 +9,7 @@ int load_data(const string file_name, vector<vector<float>>& x, vector<int>& t)
 	fstream ifs(file_name);
 
 	if (!ifs) {
-		cout << "Failed to open file." << endl;
+		cout << "Failed to file open." << endl;
 		return 0;
 	}
 
@@ -60,7 +60,7 @@ void load_batch(const vector<vector<float>>& src_x, const vector<int>& src_t,
 }
 
 MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
-	:learning_rate(0.01f)
+	:learning_rate(0.1f)
 {
 	input_size = input;
 	hidden_size = hidden;
@@ -72,8 +72,8 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 	W[1] = vector<vector<float>>(hidden_size);
 
 	b = vector<vector<float>>(2);
-	b[0] = vector<float>(hidden_size, -10);
-	b[1] = vector<float>(output_size, -10);
+	b[0] = vector<float>(hidden_size, 0);
+	b[1] = vector<float>(output_size, 0);
 
 	dW = vector<vector<vector<float>>>(2);
 	db = vector<vector<float>>(2);
