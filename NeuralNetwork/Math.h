@@ -21,7 +21,7 @@ vector<T> operator+(const vector<T>& a, const vector<T>& b) {
 	return result;
 }
 
-double get_randf(const double min, const double max) {
+inline static double get_randf(const double min, const double max) {
 	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
 	random_device rnd;
 	mt19937 mt(rnd());
@@ -30,7 +30,7 @@ double get_randf(const double min, const double max) {
 	return rndf(mt);
 }
 
-int get_randi(const int min, const int max) {
+inline static int get_randi(const int min, const int max) {
 	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
 	random_device rnd;
 	mt19937 mt(rnd());

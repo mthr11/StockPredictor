@@ -12,15 +12,30 @@ int main(void) {
 	vector<vector<float>> x_train, x_test, x_batch;
 	vector<int> t_train, t_test, t_batch;
 
-	//int epoch = 50;
-	//int batch_size = 15;
+	int epoch = 50;
+	int batch_size = 15;
 
-	//MultiLayerPerceptron* nnet = new MultiLayerPerceptron(4, 10, 3);
+	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(5, 10, 2);
+	DataGenerator* dg = new DataGenerator();
+	//if (!dg->load_from_api("IBM", x_train, t_train, x_test, t_test)) {
+	//	return 0;
+	//}
+	if (!dg->load_from_file("spy_daily.json", x_train, t_train, x_test, t_test)) {
+		return 0;
+	}
+
+	int i = 0;
+	for (auto p : x_train) {
+		for (auto q : p)
+			cout << q << "\t";
+		cout << t_train[i] << endl;
+		i++;
+	}
 
 	//if (!(load_data("iris_train.txt", x_train, t_train) && load_data("iris_test.txt", x_test, t_test)))
 	//	return 0;
 
-	//int iter_per_epoch = t_train.size() / batch_size;
+	int iter_per_epoch = t_train.size() / batch_size;
 
 	//for (int i = 0; i < iter_per_epoch * epoch; i++) {
 	//	load_batch(x_train, t_train, x_batch, t_batch, batch_size);
@@ -36,15 +51,18 @@ int main(void) {
 	//	}
 	//}
 
-	//cout << "\nComplete" << endl;
+	//for (int i = 0; i < 10 * epoch; i++) {
+	//	nnet->gradient(x_train, t_train);
+	//	nnet->gradient_descent();
 
-	DataGenerator* dg = new DataGenerator();
-	//if (!dg->load_from_api("IBM", x_train, t_train, x_test, t_test)) {
-	//	return 0;
+	//	if (!(i % 10)) {
+	//		//cout << "Loss: " << nnet->loss(x_train, t_train);
+	//		cout << "\nEpoch: " << i / 10 + 1;
+	//		cout << "\nAccuracy(train): " << nnet->accuracy(x_train, t_train);
+	//	}
 	//}
-	if (!dg->load_from_file("spy_daily.json", x_train, t_train, x_test, t_test)) {
-		return 0;
-	}
+
+	//cout << "\nComplete" << endl;
 
 	//vector<char> responseData;
 
