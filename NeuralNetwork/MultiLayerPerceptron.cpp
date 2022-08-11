@@ -152,15 +152,33 @@ float MultiLayerPerceptron::accuracy(const vector<vector<float>>& input_data, co
 {
 	vector<vector<float>> output_data = predict(input_data);
 
-	int cnt = 0;
+	int cnt_tptn = 0;
 	for (int i = 0; i < (int)input_data.size(); i++) {
 		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
 
 		if (max_o - output_data[i].begin() == train_data[i])
-			cnt++;
+			cnt_tptn++;
 	}
 
-	return (float)cnt / (float)input_data.size();
+	return (float)cnt_tptn / (float)input_data.size();
+}
+
+float MultiLayerPerceptron::precision(const vector<vector<float>>& input_data, const vector<int>& train_data)
+{
+	vector<vector<float>> output_data = predict(input_data);
+
+	int cnt_tp = 0;
+	int cnt_tpfp = 0;
+	for (int i = 0; i < (int)input_data.size(); i++) {
+		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
+
+		if (max_o - output_data[i].begin() == 1)
+			cnt_tpfp++;
+		if (max_o - output_data[i].begin() == 1 && train_data[i] == 1)
+			cnt_tp++;
+	}
+
+	return (float)cnt_tp / (float)cnt_tpfp;
 }
 
 void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, const vector<int>& train_data)
@@ -193,12 +211,14 @@ void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, con
 	//	cout << endl;
 	//}
 
-	//cout << "\noutput:\n";
-	//for (auto& p : output_data) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
+	if (!true) {
+		cout << "\noutput:\n";
+		for (auto& p : output_data) {
+			for (auto& q : p)
+				cout << q << " ";
+			cout << endl;
+		}
+	}
 
 	/*========== backward ==========*/
 	/* Softmax with Loss Layer */
@@ -312,4 +332,10 @@ void MultiLayerPerceptron::gradient_descent()
 	for (int i = 0; i < (int)b.size(); i++)
 		for (int j = 0; j < (int)b[i].size(); j++)
 			b[i][j] -= learning_rate * db[i][j];
+
+	//for (auto& p : W[0]) {
+	//	for (auto& q : p)
+	//		cout << q << " ";
+	//	cout << endl;
+	//}
 }

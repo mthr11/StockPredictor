@@ -23,8 +23,10 @@ public:
 	vector<vector<float>> predict(const vector<vector<float>>& input_data);
 	// 損失関数
 	float loss(const vector<vector<float>>& input_data, const vector<int>& train_data);
-	// 精度を求める
+	// 正解率を求める
 	float accuracy(const vector<vector<float>>& input_data, const vector<int>& train_data);
+	// 2値分類の精度を求める
+	float precision(const vector<vector<float>>& input_data, const vector<int>& train_data);
 	// 誤差逆伝播法
 	void gradient(const vector<vector<float>>& input_data, const vector<int>& train_data);
 	// 数値微分(誤差逆伝播法の勾配確認用)
