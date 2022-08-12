@@ -18,10 +18,12 @@ public:
 
 	int load_from_api(const string symbol, vector<vector<float>>& x_train, vector<int>& t_train,
 			vector<vector<float>>& x_test, vector<int>& t_test);
-	int load_from_file(const string file_name, vector<vector<float>>& x_train, vector<int>& t_train,
-			vector<vector<float>>& x_test, vector<int>& t_test);
-	void generate(vector<vector<float>>& x_train, vector<int>& t_train, vector<vector<float>>& x_test, vector<int>& t_test);
+	json load_json(const string file_name);
+	int generate_from_file(vector<vector<float>>& x_train, vector<int>& t_train
+			, vector<vector<float>>& x_test, vector<int>& t_test);
+	int generate_minibatch(const vector<vector<float>>& src_x, const vector<int>& src_t
+			, vector<vector<float>>& dst_x, vector<int>& dst_t, const int batch_size);
 private:
-	json j;
+	int positive_num;	// —z«(³‰ğƒ‰ƒxƒ‹‚ª1)‚Ì”
 };
 

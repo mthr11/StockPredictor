@@ -15,14 +15,14 @@ int main(void) {
 	int epoch = 10;
 	int batch_size = 15;
 
-	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(2, 10, 2);
+	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(3, 10, 2);
 	nnet->set_learning_rate(0.1f);
 
 	DataGenerator* dg = new DataGenerator();
 	//if (!dg->load_from_api("IBM", x_train, t_train, x_test, t_test)) {
 	//	return 0;
 	//}
-	if (!dg->load_from_file("spy_daily_full.json", x_train, t_train, x_test, t_test)) {
+	if (!dg->generate_from_file(x_train, t_train, x_test, t_test)) {
 		return 0;
 	}
 
@@ -67,7 +67,7 @@ int main(void) {
 				//cout << "Loss: " << nnet->loss(x_train, t_train);
 				cout << "\nEpoch: " << i / 10 + 1;
 				cout << "\nAccuracy(train): " << nnet->accuracy(x_train, t_train);
-				cout << "\nPrecision(train): " << nnet->precision(x_train, t_train);
+				cout << "\nPrecision(train): " << nnet->precision(x_train, t_train) << endl;
 			}
 		}
 	}

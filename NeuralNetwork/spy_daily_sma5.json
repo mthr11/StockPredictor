@@ -2,13 +2,22 @@
     "Meta Data": {
         "1: Symbol": "SPY",
         "2: Indicator": "Simple Moving Average (SMA)",
-        "3: Last Refreshed": "2022-08-08",
+        "3: Last Refreshed": "2022-08-11",
         "4: Interval": "daily",
         "5: Time Period": 5,
         "6: Series Type": "close",
         "7: Time Zone": "US/Eastern"
     },
     "Technical Analysis: SMA": {
+        "2022-08-11": {
+            "SMA": "415.5580"
+        },
+        "2022-08-10": {
+            "SMA": "414.3940"
+        },
+        "2022-08-09": {
+            "SMA": "413.2860"
+        },
         "2022-08-08": {
             "SMA": "412.6280"
         },
