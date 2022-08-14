@@ -13,9 +13,9 @@ int main(void) {
 	vector<int> t_train, t_test, t_batch;
 
 	int epoch = 20;
-	int batch_size = 16;
+	int batch_size = 20;
 
-	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(3, 20, 2);
+	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(3, 16, 2);
 	nnet->set_learning_rate(0.1f);
 
 	DataGenerator* dg = new DataGenerator();
@@ -36,6 +36,16 @@ int main(void) {
 			i++;
 		}
 	}
+	if (!true) {
+		int i = 0;
+		for (auto p : x_test) {
+			cout << i + 1 << ":\t";
+			for (auto q : p)
+				cout << q << "\t";
+			cout << t_test[i] << endl;
+			i++;
+		}
+	}
 
 	//if (!(load_data("iris_train.txt", x_train, t_train) && load_data("iris_test.txt", x_test, t_test)))
 	//	return 0;
@@ -53,7 +63,9 @@ int main(void) {
 				//cout << "Loss: " << nnet->loss(x_train, t_train);
 				cout << "\nEpoch: " << i / iter_per_epoch + 1;
 				cout << "\nAccuracy(train): " << nnet->accuracy(x_batch, t_batch);
-				cout << "\nPrecision(train): " << nnet->precision(x_batch, t_batch) << endl;
+				cout << "\nPrecision(train): " << nnet->precision(x_batch, t_batch);
+				cout << "\nAccuracy(test): " << nnet->accuracy(x_test, t_test);
+				cout << "\nPrecision(test): " << nnet->precision(x_test, t_test) << endl;
 			}
 		}
 	}

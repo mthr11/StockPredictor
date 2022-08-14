@@ -147,34 +147,54 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 	/*========== 訓練データに値を格納(最新5つのデータと最も古いデータは使わない) ==========*/
 
 	float theta = 0.03f;	// 閾値
-	int offset = 5;
+	int offset = 5;	// 何個先のデータと比較するか
+	int test_size = 20;
+	int test_p = 0;	// 評価データに入っている陽性データの数
+	int test_n = 0;	// 評価データに入っている陰性データの数
 	
 	for (int i = offset; i < daily.size() - 1; i++) {
-		/* 入力値 */
-		x_train.push_back(vector<float>());
-		//x_train.back().push_back(buf[i][1] * 1e-2);	// 終値
-		//x_train.back().push_back(daily[i][4] * 1e-8);	// 出来高
-		//x_train.back().push_back(buf[i][1] - buf[i][0]);	// 終値 - 始値
-		x_train.back().push_back(abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]));	// |終値 - 始値| / (高値 - 安値)
-		x_train.back().push_back((daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3]);	// 前日比
-		x_train.back().push_back((daily[i][3] + daily[i][0]) / 2 - sma[i]);	// 終値, 始値の平均とSMAの差
+		vector<vector<float>>* x = &x_train;
+		vector<int>* t = &t_train;
 
-		/* 出力値(データiとデータi+5の終値の比が閾値を超えているかどうか) */
-		float p = (daily[i - offset][3] - daily[i][3]) / daily[i][3];
+		/* 出力値 */
+		float p = (daily[i - offset][3] - daily[i][3]) / daily[i][3];	// 2データの終値の比が閾値を超えているかどうか
 		if (p >= theta) {
-			t_train.push_back(1);
-			positive_data.push_back(i - offset);
+			if (test_p < test_size / 2) {	// 評価データに入れるかどうか
+				test_p++;
+				x = &x_test;
+				t = &t_test;
+			}
+			else {
+				positive_data.push_back((*x).size());
+			}
+			(*t).push_back(1);
 		}
 		//else if (p <= -theta) {
 		//	t_train.push_back(2);
 		//}
 		else {
-			t_train.push_back(0);
-			negative_data.push_back(i - offset);
+			if (test_n < test_size / 2) {	// 評価データに入れるかどうか
+				test_n++;
+				x = &x_test;
+				t = &t_test;
+			}
+			else {
+				negative_data.push_back((*x).size());
+			}
+			(*t).push_back(0);
 		}
-	}
 
-	cout << positive_data.size() << endl;
+		/* 入力値 */
+		(*x).push_back(vector<float>());
+		//(*x).back().push_back(buf[i][1] * 1e-2);	// 終値
+		//(*x).back().push_back(daily[i][4] * 1e-8);	// 出来高
+		//(*x).back().push_back(buf[i][1] - buf[i][0]);	// 終値 - 始値
+		(*x).back().push_back(abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]));	// |終値 - 始値| / (高値 - 安値)
+		(*x).back().push_back((daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3]);	// 前日比
+		(*x).back().push_back((daily[i][3] + daily[i][0]) / 2 - sma[i]);	// 終値, 始値の平均とSMAの差
+
+		//cout << (*x).back().back() << "\t" << t.back() << endl;
+	}
 
 	return 1;
 }
