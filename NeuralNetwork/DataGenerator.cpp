@@ -146,14 +146,14 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 	
 	/*========== 訓練データに値を格納(最新5つのデータと最も古いデータは使わない) ==========*/
 
-	float theta = 0.02f;	// 閾値
+	float theta = 0.03f;	// 閾値
 	int offset = 5;
 	
 	for (int i = offset; i < daily.size() - 1; i++) {
 		/* 入力値 */
 		x_train.push_back(vector<float>());
 		//x_train.back().push_back(buf[i][1] * 1e-2);	// 終値
-		//x_train.back().push_back(buf[i][2] * 1e-8);	// 出来高
+		//x_train.back().push_back(daily[i][4] * 1e-8);	// 出来高
 		//x_train.back().push_back(buf[i][1] - buf[i][0]);	// 終値 - 始値
 		x_train.back().push_back(abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]));	// |終値 - 始値| / (高値 - 安値)
 		x_train.back().push_back((daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3]);	// 前日比
@@ -163,20 +163,52 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 		float p = (daily[i - offset][3] - daily[i][3]) / daily[i][3];
 		if (p >= theta) {
 			t_train.push_back(1);
+			positive_data.push_back(i - offset);
 		}
 		//else if (p <= -theta) {
 		//	t_train.push_back(2);
 		//}
 		else {
 			t_train.push_back(0);
+			negative_data.push_back(i - offset);
 		}
 	}
+
+	cout << positive_data.size() << endl;
 
 	return 1;
 }
 
-int DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const vector<int>& src_t
+void DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const vector<int>& src_t
 		, vector<vector<float>>& dst_x, vector<int>& dst_t, const int batch_size)
 {
-	return 1;
+	int batch = batch_size / 2;
+
+	/* 陽性データの選択 */
+	if (batch > positive_data.size()) {
+		batch = positive_data.size();
+		for (auto i : positive_data) {
+			dst_x.push_back(src_x[i]);
+			dst_t.push_back(1);
+			//cout << r << ":\t" << dst_x.back().back() << "\t" << dst_t.back() << endl;
+		}
+	}
+	else {
+		for (int i = 0; i < batch; i++) {
+			int r = get_randi(0, positive_data.size() - 1);
+
+			dst_x.push_back(src_x[positive_data[r]]);
+			dst_t.push_back(1);
+			//cout << r << ":\t" << dst_x.back().back() << "\t" << dst_t.back() << endl;
+		}
+	}
+
+	/* 陰性データの選択 */
+	for (int i = 0; i < batch; i++) {
+		int r = get_randi(0, negative_data.size() - 1);
+
+		dst_x.push_back(src_x[negative_data[r]]);
+		dst_t.push_back(0);
+		//cout << r << ":\t" << dst_x.back().back() << "\t" << dst_t.back() << endl;
+	}
 }

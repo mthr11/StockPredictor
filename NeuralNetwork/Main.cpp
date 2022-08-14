@@ -12,10 +12,10 @@ int main(void) {
 	vector<vector<float>> x_train, x_test, x_batch;
 	vector<int> t_train, t_test, t_batch;
 
-	int epoch = 10;
-	int batch_size = 15;
+	int epoch = 20;
+	int batch_size = 16;
 
-	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(3, 10, 2);
+	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(3, 20, 2);
 	nnet->set_learning_rate(0.1f);
 
 	DataGenerator* dg = new DataGenerator();
@@ -26,7 +26,7 @@ int main(void) {
 		return 0;
 	}
 
-	if (true) {
+	if (!true) {
 		int i = 0;
 		for (auto p : x_train) {
 			cout << i + 1 << ":\t";
@@ -42,9 +42,9 @@ int main(void) {
 
 	int iter_per_epoch = t_train.size() / batch_size;
 
-	if (!true) {
+	if (true) {
 		for (int i = 0; i < iter_per_epoch * epoch; i++) {
-			load_batch(x_train, t_train, x_batch, t_batch, batch_size);
+			dg->generate_minibatch(x_train, t_train, x_batch, t_batch, batch_size);
 
 			nnet->gradient(x_batch, t_batch);
 			nnet->gradient_descent();
@@ -52,13 +52,13 @@ int main(void) {
 			if (!(i % iter_per_epoch)) {
 				//cout << "Loss: " << nnet->loss(x_train, t_train);
 				cout << "\nEpoch: " << i / iter_per_epoch + 1;
-				cout << "\nAccuracy(train): " << nnet->accuracy(x_train, t_train);
-				cout << "\nAccuracy(test): " << nnet->accuracy(x_test, t_test) << endl;
+				cout << "\nAccuracy(train): " << nnet->accuracy(x_batch, t_batch);
+				cout << "\nPrecision(train): " << nnet->precision(x_batch, t_batch) << endl;
 			}
 		}
 	}
 
-	if (true) {
+	if (!true) {
 		for (int i = 0; i < 10 * epoch; i++) {
 			nnet->gradient(x_train, t_train);
 			nnet->gradient_descent();
@@ -73,6 +73,9 @@ int main(void) {
 	}
 
 	cout << "\nComplete" << endl;
+
+	delete dg;
+	delete nnet;
 
 	//vector<char> responseData;
 

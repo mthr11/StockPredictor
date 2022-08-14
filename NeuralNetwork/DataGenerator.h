@@ -21,9 +21,11 @@ public:
 	json load_json(const string file_name);
 	int generate_from_file(vector<vector<float>>& x_train, vector<int>& t_train
 			, vector<vector<float>>& x_test, vector<int>& t_test);
-	int generate_minibatch(const vector<vector<float>>& src_x, const vector<int>& src_t
+	void generate_minibatch(const vector<vector<float>>& src_x, const vector<int>& src_t
 			, vector<vector<float>>& dst_x, vector<int>& dst_t, const int batch_size);
 private:
 	int positive_num;	// 陽性(正解ラベルが1)の数
+
+	vector<int> positive_data, negative_data;	// それぞれ陽性、陰性のデータ番号を保持する
 };
 

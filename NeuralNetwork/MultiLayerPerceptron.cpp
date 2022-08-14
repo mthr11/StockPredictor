@@ -152,6 +152,15 @@ float MultiLayerPerceptron::accuracy(const vector<vector<float>>& input_data, co
 {
 	vector<vector<float>> output_data = predict(input_data);
 
+	if (!true) {
+		cout << "\noutput:\n";
+		for (auto& p : output_data) {
+			for (auto& q : p)
+				cout << q << " ";
+			cout << endl;
+		}
+	}
+
 	int cnt_tptn = 0;
 	for (int i = 0; i < (int)input_data.size(); i++) {
 		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
