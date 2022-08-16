@@ -176,6 +176,15 @@ float MultiLayerPerceptron::precision(const vector<vector<float>>& input_data, c
 {
 	vector<vector<float>> output_data = predict(input_data);
 
+	if (!true) {
+		cout << "\noutput:\n";
+		for (auto& p : output_data) {
+			for (auto& q : p)
+				cout << q << " ";
+			cout << endl;
+		}
+	}
+
 	int cnt_tp = 0;
 	int cnt_tpfp = 0;
 	for (int i = 0; i < (int)input_data.size(); i++) {

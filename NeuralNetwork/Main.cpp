@@ -15,11 +15,11 @@ int main(void) {
 	int epoch = 20;
 	int batch_size = 20;
 
-	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(3, 16, 2);
+	MultiLayerPerceptron* nnet = new MultiLayerPerceptron(5, 8, 2);
 	nnet->set_learning_rate(0.1f);
 
 	DataGenerator* dg = new DataGenerator();
-	//if (!dg->load_from_api("IBM", x_train, t_train, x_test, t_test)) {
+	//if (!dg->generate_from_api("SPY", x_train, t_train, x_test, t_test)) {
 	//	return 0;
 	//}
 	if (!dg->generate_from_file(x_train, t_train, x_test, t_test)) {
@@ -31,17 +31,17 @@ int main(void) {
 		for (auto p : x_train) {
 			cout << i + 1 << ":\t";
 			for (auto q : p)
-				cout << q << "\t";
+				cout << setfill(' ') << setw(10) << q << " ";
 			cout << t_train[i] << endl;
 			i++;
 		}
 	}
-	if (!true) {
+	if (true) {
 		int i = 0;
 		for (auto p : x_test) {
 			cout << i + 1 << ":\t";
 			for (auto q : p)
-				cout << q << "\t";
+				cout << setfill(' ') << setw(10) << q << " ";
 			cout << t_test[i] << endl;
 			i++;
 		}
