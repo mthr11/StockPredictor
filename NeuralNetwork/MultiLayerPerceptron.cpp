@@ -29,12 +29,10 @@ int load_data(const string file_name, vector<vector<float>>& x, vector<int>& t)
 			float tmp = stof(token);
 			if (j < 4) {
 				x[i].push_back(tmp);
-				//cout << x[i].back() << "\t";
 			}
 			else {
 				tmp--;
 				t.push_back((int)tmp);
-				//cout << t.back() << endl;
 			}
 			j++;
 		}
@@ -54,7 +52,6 @@ void load_batch(const vector<vector<float>>& src_x, const vector<int>& src_t,
 
 			dst_x.push_back(src_x[r]);
 			dst_t.push_back(src_t[r]);
-			//cout << r << " " << dst_x.back().back() << " " << dst_t.back() << endl;
 		}
 	}
 }
@@ -83,22 +80,14 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 		for (int j = 0; j < hidden_size; j++) {
 			float r = (float)get_randf(-1, 1);
 			W[0][i].push_back(r);
-			//cout << r << " ";
 		}
-		//cout << endl;
 	}
-	//cout << endl;
 	for (int i = 0; i < hidden_size; i++) {
 		for (int j = 0; j < output_size; j++) {
 			float r = (float)get_randf(-1, 1);
 			W[1][i].push_back(r);
-			//cout << r << " ";
 		}
-		//cout << endl;
 	}
-
-	//W[0] = { {0.1f,0.2f,0.3f,0.4f,0.5f},{0.2f,0.3f,0.4f,0.5f,0.6f}, {0.3f,0.4f,0.5f,0.6f,0.7f}, {0.4f,0.5f,0.6f,0.7f,0.8f} };
-	//W[1] = { {0.1f,0.2f,0.3f},{0.2f,0.3f,0.4f},{0.3f,0.4f,0.5f},{0.4f,0.5f,0.6f},{0.5f,0.6f,0.7f} };
 }
 
 MultiLayerPerceptron::~MultiLayerPerceptron()
@@ -127,13 +116,6 @@ vector<vector<float>> MultiLayerPerceptron::predict(const vector<vector<float>>&
 		}
 	}
 
-	//cout << "output:\n";
-	//for (auto& p : output_data){
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
-
 	return output_data;
 }
 
@@ -152,15 +134,6 @@ float MultiLayerPerceptron::accuracy(const vector<vector<float>>& input_data, co
 {
 	vector<vector<float>> output_data = predict(input_data);
 
-	if (!true) {
-		cout << "\noutput:\n";
-		for (auto& p : output_data) {
-			for (auto& q : p)
-				cout << q << " ";
-			cout << endl;
-		}
-	}
-
 	int cnt_tptn = 0;
 	for (int i = 0; i < (int)input_data.size(); i++) {
 		auto max_o = max_element(output_data[i].begin(), output_data[i].end());
@@ -175,15 +148,6 @@ float MultiLayerPerceptron::accuracy(const vector<vector<float>>& input_data, co
 float MultiLayerPerceptron::precision(const vector<vector<float>>& input_data, const vector<int>& train_data)
 {
 	vector<vector<float>> output_data = predict(input_data);
-
-	if (!true) {
-		cout << "\noutput:\n";
-		for (auto& p : output_data) {
-			for (auto& q : p)
-				cout << q << " ";
-			cout << endl;
-		}
-	}
 
 	int cnt_tp = 0;
 	int cnt_tpfp = 0;
@@ -202,6 +166,7 @@ float MultiLayerPerceptron::precision(const vector<vector<float>>& input_data, c
 void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, const vector<int>& train_data)
 {
 	/*========== forward ==========*/
+
 	/* 入力層から1層目への計算 */
 	vector<vector<float>> a1 = Math::dot(input_data, W[0]);
 	for (auto& p : a1)
@@ -222,23 +187,8 @@ void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, con
 		}
 	}
 
-	//cout << "z1:\n";
-	//for (auto& p : z1) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
-
-	if (!true) {
-		cout << "\noutput:\n";
-		for (auto& p : output_data) {
-			for (auto& q : p)
-				cout << q << " ";
-			cout << endl;
-		}
-	}
-
 	/*========== backward ==========*/
+
 	/* Softmax with Loss Layer */
 	vector<vector<float>> da2 = output_data;
 	for (int i = 0; i < (int)input_data.size(); i++) {
@@ -248,35 +198,13 @@ void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, con
 			da2[i][j] /= (float)input_data.size();	// バッチサイズで割る
 		}
 	}
-	//cout << "\nda2:\n";
-	//for (auto& p : da2) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
 
 	/* Affine Layer2 */
 	vector<vector<float>> dz = Math::dot(da2, Math::transpose(W[1]));
-	//cout << "\ndz:\n";
-	//for (auto& p : dz) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
 	dW[1] = Math::dot(Math::transpose(z1), da2);
-	//cout << "\ndW1:\n";
-	//for (auto& p : dW[1]) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
 	db[1] = vector<float>(da2[0].size(), 0);
 	for (auto& p : da2)
 		db[1] = db[1] + p;
-	//cout << "\ndb1:\n";
-	//for (auto& p : db[1]) 
-	//	cout << p << " ";
-	//cout << endl;
 
 	/* Sigmoid Layer */
 	vector<vector<float>> da1 = vector<vector<float>>(z1.size());
@@ -285,42 +213,12 @@ void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, con
 			da1[i].push_back(dz[i][j] * z1[i][j] * (1 - z1[i][j]));
 		}
 	}
-	//cout << "\nda1:\n";
-	//for (auto& p : da1) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
 
 	/* Affine Layer1 */
 	dW[0] = Math::dot(Math::transpose(input_data), da1);
-	//cout << "\ndW0:\n";
-	//for (auto& p : dW[0]) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
 	db[0] = vector<float>(da1[0].size(), 0);
 	for (auto& p : da1)
 		db[0] = db[0] + p;
-	//cout << "\ndb0:\n";
-	//for (auto& p : db[0])
-	//	cout << p << " ";
-	//cout << endl;
-
-	/* 勾配確認 */
-	//cout << "\nGRADIENT CHECK";
-	//cout << "\ndW1" << endl;
-	//for (auto& p : W[1])
-	//	numerical_gradient(input_data, train_data, p);
-	//cout << "\ndb1" << endl;
-	//numerical_gradient(input_data, train_data, b[1]);
-
-	//cout << "\ndW0" << endl;
-	//for (auto& p : W[0])
-	//	numerical_gradient(input_data, train_data, p);
-	//cout << "\ndb0" << endl;
-	//numerical_gradient(input_data, train_data, b[0]);
 }
 
 void MultiLayerPerceptron::numerical_gradient(const vector<vector<float>>& input_data, const vector<int>& train_data, vector<float>& x)
@@ -350,10 +248,4 @@ void MultiLayerPerceptron::gradient_descent()
 	for (int i = 0; i < (int)b.size(); i++)
 		for (int j = 0; j < (int)b[i].size(); j++)
 			b[i][j] -= learning_rate * db[i][j];
-
-	//for (auto& p : W[0]) {
-	//	for (auto& q : p)
-	//		cout << q << " ";
-	//	cout << endl;
-	//}
 }

@@ -7,8 +7,6 @@
 
 using namespace std;
 
-/*========== 演算子オーバーロード ==========*/
-
 /* ベクトルの和を求める */
 template <class T>
 vector<T> operator+(const vector<T>& a, const vector<T>& b) {
@@ -21,6 +19,7 @@ vector<T> operator+(const vector<T>& a, const vector<T>& b) {
 	return result;
 }
 
+/* floatの乱数を得る */
 inline static double get_randf(const double min, const double max) {
 	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
 	random_device rnd;
@@ -30,6 +29,7 @@ inline static double get_randf(const double min, const double max) {
 	return rndf(mt);
 }
 
+/* intの乱数を得る */
 inline static int get_randi(const int min, const int max) {
 	/* 擬似乱数(メルセンヌ・ツイスタ)の生成 */
 	random_device rnd;

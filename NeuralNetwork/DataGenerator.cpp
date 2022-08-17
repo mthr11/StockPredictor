@@ -117,7 +117,6 @@ int DataGenerator::generate_from_api(const string symbol, vector<vector<float>>&
 	/* 各データをvectorに格納 */
 	for (int t = 0; t < size; t++) {	// 日付オブジェクトをループ
 		daily.push_back(vector<float>());
-		//cout << ritr.key() << endl;
 
 		for (auto& i : (*ritr).items()) {	// 各データのkey, valueのペアをループ
 			string v;
@@ -129,10 +128,8 @@ int DataGenerator::generate_from_api(const string symbol, vector<vector<float>>&
 			ss.ignore();
 			ss >> tmp;
 			daily.back().push_back(tmp);
-			//cout << tmp << "\t";
 		}
 		ritr++;
-		//cout << endl;
 	}
 
 
@@ -149,7 +146,6 @@ int DataGenerator::generate_from_api(const string symbol, vector<vector<float>>&
 
 		/* データをvectorに格納 */
 		for (int t = 0; t < size; t++) {	// 日付オブジェクトをループ
-			//cout << ritr.key() << endl;
 			string v;
 			stringstream ss;
 			float tmp;
@@ -159,7 +155,6 @@ int DataGenerator::generate_from_api(const string symbol, vector<vector<float>>&
 			ss.ignore();
 			ss >> tmp;
 			atr.push_back(tmp);
-			//cout << tmp << endl;
 
 			ritr++;
 		}
@@ -170,13 +165,15 @@ int DataGenerator::generate_from_api(const string symbol, vector<vector<float>>&
 	return 1;
 }
 
-int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int>& t_train
+int DataGenerator::generate_from_file(const string symbol, vector<vector<float>>& x_train, vector<int>& t_train
 		, vector<vector<float>>& x_test, vector<int>& t_test)
 {
 	int size = 300;	// 読み込むデータ数(130 = 約半年分)
 
 	/*========== 日足データの読み込み ==========*/
-	json j = load_json("spy_daily_full.json");
+	string file_name = symbol + "_daily_full.json";
+
+	json j = load_json(file_name);
 	if (j == nullptr) {
 		return 0;
 	}
@@ -189,7 +186,6 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 	/* 各データをvectorに格納 */
 	for (int t = 0; t < size; t++) {	// 日付オブジェクトをループ
 		daily.push_back(vector<float>());
-		//cout << ritr.key() << endl;
 
 		for (auto& i : (*ritr).items()) {	// 各データのkey, valueのペアをループ
 			string v;
@@ -201,16 +197,16 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 			ss.ignore();
 			ss >> tmp;
 			daily.back().push_back(tmp);
-			//cout << tmp << "\t";
 		}
 		ritr++;
-		//cout << endl;
 	}
 
 
 	/*========== 5日ATRデータの読み込み ==========*/
 	if (true) {
-		j = load_json("spy_daily_atr5.json");
+		file_name = symbol + "_daily_atr5.json";
+
+		j = load_json(file_name);
 		if (j == nullptr) {
 			return 0;
 		}
@@ -221,7 +217,6 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 
 		/* データをvectorに格納 */
 		for (int t = 0; t < size; t++) {	// 日付オブジェクトをループ
-			//cout << ritr.key() << endl;
 			string v;
 			stringstream ss;
 			float tmp;
@@ -231,7 +226,6 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 			ss.ignore();
 			ss >> tmp;
 			atr.push_back(tmp);
-			//cout << tmp << endl;
 
 			ritr++;
 		}
@@ -245,6 +239,16 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 void DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_train
 	, vector<vector<float>>& x_test, vector<int>& t_test)
 {
+	/* 5日モメンタムの計算 */
+	vector<float> momentum(daily.size());
+	float max_momentum = -FLT_MAX;
+	for (int i = 0; i < momentum.size() - 5; i++) {
+		momentum[i] = daily[i][3] - daily[i + 5][3];
+		max_momentum = max(max_momentum, momentum[i]);
+	}
+
+	float max_atr = *max_element(atr.begin(), atr.end());	// 5日ATRの最大値
+
 	/*========== 訓練データに値を格納(最も古いデータと最新5つのデータは使わない) ==========*/
 
 	float theta = 0.02f;	// 閾値
@@ -287,8 +291,8 @@ void DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t
 		(*x).back().push_back(abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]));	// |終値 - 始値| / (高値 - 安値)
 		(*x).back().push_back((daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3]);	// 変動率
 		(*x).back().push_back((daily[i + 1][3] - daily[i + 2][3]) * 100 / daily[i + 2][3]);	// 前日の変動率
-		(*x).back().push_back((daily[i][3] - daily[i + 5][3]) / 10);	// 5日モメンタム
-		(*x).back().push_back(atr[i]);
+		(*x).back().push_back(momentum[i] / max_momentum);	// 5日モメンタム(最大値で正規化)
+		(*x).back().push_back(atr[i] / max_atr);	// 5日ATR(最大値で正規化)
 	}
 }
 
@@ -303,7 +307,6 @@ void DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const
 		for (auto i : positive_data) {
 			dst_x.push_back(src_x[i]);
 			dst_t.push_back(1);
-			//cout << r << ":\t" << dst_x.back().back() << "\t" << dst_t.back() << endl;
 		}
 	}
 	else {
@@ -312,7 +315,6 @@ void DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const
 
 			dst_x.push_back(src_x[positive_data[r]]);
 			dst_t.push_back(1);
-			//cout << r << ":\t" << dst_x.back().back() << "\t" << dst_t.back() << endl;
 		}
 	}
 
@@ -322,6 +324,5 @@ void DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const
 
 		dst_x.push_back(src_x[negative_data[r]]);
 		dst_t.push_back(0);
-		//cout << r << ":\t" << dst_x.back().back() << "\t" << dst_t.back() << endl;
 	}
 }

@@ -21,7 +21,7 @@ public:
 	json load_json(const string file_name);
 	int generate_from_api(const string symbol, vector<vector<float>>& x_train, vector<int>& t_train
 			, vector<vector<float>>& x_test, vector<int>& t_test);
-	int generate_from_file(vector<vector<float>>& x_train, vector<int>& t_train
+	int generate_from_file(const string symbol, vector<vector<float>>& x_train, vector<int>& t_train
 			, vector<vector<float>>& x_test, vector<int>& t_test);
 	void generate_data(vector<vector<float>>& x_train, vector<int>& t_train
 			, vector<vector<float>>& x_test, vector<int>& t_test);
