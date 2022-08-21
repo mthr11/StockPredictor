@@ -154,11 +154,13 @@
     <ClCompile Include="DataGenerator.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MultiLayerPerceptron.cpp" />
+    <ClCompile Include="Predictor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataGenerator.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MultiLayerPerceptron.h" />
+    <ClInclude Include="Predictor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

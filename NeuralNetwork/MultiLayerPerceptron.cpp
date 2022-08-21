@@ -63,20 +63,31 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 	hidden_size = hidden;
 	output_size = output;
 
-	/* メンバ変数初期化 */
+	dW = vector<vector<vector<float>>>(2);
+	db = vector<vector<float>>(2);
+
+	init_weight();	// 重み初期化
+}
+
+MultiLayerPerceptron::~MultiLayerPerceptron()
+{
+}
+
+void MultiLayerPerceptron::init_weight()
+{
+	/* 要素初期化 */
+	W.clear();
 	W = vector<vector<vector<float>>>(2);
 	W[0] = vector<vector<float>>(input_size);
 	W[1] = vector<vector<float>>(hidden_size);
 
+	b.clear();
 	b = vector<vector<float>>(2);
 	b[0] = vector<float>(hidden_size, 0);
 	b[1] = vector<float>(output_size, 0);
 
-	dW = vector<vector<vector<float>>>(2);
-	db = vector<vector<float>>(2);
-
-	/* 重みを乱数で初期化 */
-	for(int i = 0;i<input_size;i++){
+	/* 乱数で初期化 */
+	for (int i = 0; i < input_size; i++) {
 		for (int j = 0; j < hidden_size; j++) {
 			float r = (float)get_randf(-1, 1);
 			W[0][i].push_back(r);
@@ -88,10 +99,6 @@ MultiLayerPerceptron::MultiLayerPerceptron(int input, int hidden, int output)
 			W[1][i].push_back(r);
 		}
 	}
-}
-
-MultiLayerPerceptron::~MultiLayerPerceptron()
-{
 }
 
 vector<vector<float>> MultiLayerPerceptron::predict(const vector<vector<float>>& input_data)

@@ -253,6 +253,11 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_train
 	, vector<vector<float>>& x_test, vector<int>& t_test)
 {
+	x_train.clear();
+	t_train.clear();
+	x_test.clear();
+	t_test.clear();
+
 	/* 5日モメンタムの計算 */
 	vector<float> momentum(daily.size());
 	int interval = 5;
@@ -268,7 +273,7 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 
 	float theta = percent / 100.f;	// 閾値
 	int offset = day;	// 何個先のデータと比較するか
-	int test_size = 50;
+	int test_size = 60;
 	int test_p = 0;	// 評価データに入っている陽性データの数
 	int test_n = 0;	// 評価データに入っている陰性データの数
 
@@ -314,6 +319,7 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 		cout << "Unable to generate available training data.\nPlease try to change the parameters." << endl;
 		return 0;
 	}
+	cout << positive_data.size() << endl;
 
 	return 1;
 }
@@ -321,13 +327,16 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 void DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const vector<int>& src_t
 		, vector<vector<float>>& dst_x, vector<int>& dst_t, const int batch_size)
 {
+	dst_x.clear();
+	dst_t.clear();
+
 	int batch = batch_size / 2;
 
 	/* 陽性データの選択 */
-	if (batch > positive_data.size()) {
+	if (batch > positive_data.size()) {	// バッチサイズが大きい場合
 		batch = positive_data.size();
-		for (auto i : positive_data) {
-			dst_x.push_back(src_x[i]);
+		for (int i = 0; i < batch; i++) {
+			dst_x.push_back(src_x[positive_data[i]]);
 			dst_t.push_back(1);
 		}
 	}
@@ -344,7 +353,7 @@ void DataGenerator::generate_minibatch(const vector<vector<float>>& src_x, const
 	for (int i = 0; i < batch; i++) {
 		int r = get_randi(0, negative_data.size() - 1);
 
-		dst_x.push_back(src_x[negative_data[r]]);
-		dst_t.push_back(0);
+			dst_x.push_back(src_x[negative_data[r]]);
+			dst_t.push_back(0);
 	}
 }
