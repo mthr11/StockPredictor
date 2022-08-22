@@ -29,24 +29,7 @@ int main(void)
 				cin >> symbol;
 			}
 
-			cout << "\nPredicts whether the stock price will rise XX % in YY days.\nXX > ";
-
-			while (1) {	// エラー処理
-				cin >> input;
-				if (is_number(input)) {
-					percent = stof(input);
-					if (percent < 1 || 100 < percent) {
-						cout << "Error: Please enter a number from 1 to 100.\n> ";
-						continue;
-					}
-					break;
-				}
-				else {
-					cout << "Error: Please enter a number.\n> ";
-				}
-			}
-
-			cout << "YY > ";
+			cout << "\nPredicts whether the stock price will rise X % in D days.\nD > ";
 
 			while (1) {	// エラー処理
 				cin >> input;
@@ -62,6 +45,23 @@ int main(void)
 					cout << "Error: Please enter a number.\n> ";
 				}
 			}
+
+			cout << "X > ";
+
+			while (1) {	// エラー処理
+				cin >> input;
+				if (is_number(input)) {
+					percent = stof(input);
+					if (percent < 1 || 100 < percent) {
+						cout << "Error: Please enter a number from 1 to 100.\n> ";
+						continue;
+					}
+					break;
+				}
+				else {
+					cout << "Error: Please enter a number.\n> ";
+				}
+			}
 		}
 
 		if (!pred->learn_and_predict(api_key, symbol, percent, day)) {
@@ -69,7 +69,7 @@ int main(void)
 			continue;
 		}
 
-		cout << "Again?\n[1]Continue(same settings) [2]Change the settings [3]Quit\n> ";
+		cout << "\nAgain?\n[1]Continue(same settings) [2]Change the settings [3]Quit\n> ";
 
 		while (1) {	// エラー処理と選択肢処理
 			cin >> input;

@@ -10,7 +10,7 @@ class DataGenerator
 {
 public:
 	// コンストラクタとデストラクタ
-	DataGenerator(const string& key, const string& symb, const float& per, const int& d);
+	DataGenerator(const string& key, const string& symb, const float& per, const int& d, const int& batch);
 	~DataGenerator();
 
 	// コールバック関数
@@ -39,6 +39,7 @@ private:
 	string symbol;
 	float percent;
 	int day;
+	int batch_size;
 
 	vector<vector<float>> daily;	// 日足データを保持するバッファ
 	vector<float> atr;	// ATRデータを保持するバッファ

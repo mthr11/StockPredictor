@@ -6,11 +6,12 @@
 #include <cmath>
 #include <curl.h>
 
-DataGenerator::DataGenerator(const string& key, const string& symb, const float& per, const int& d)
+DataGenerator::DataGenerator(const string& key, const string& symb, const float& per, const int& d, const int& batch)
 	: api_key(key)
 	, symbol(symb)
 	, percent(per)
 	, day(d)
+	, batch_size(batch)
 {
 }
 
@@ -315,11 +316,11 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 		(*x).back().push_back(atr[i] / max_atr);	// ATR(Å‘å’l‚Å³‹K‰»)
 	}
 
-	if (positive_data.size() == 0) {
+	if (positive_data.size() < batch_size / 2) {
 		cout << "Unable to generate available training data.\nPlease try to change the parameters." << endl;
 		return 0;
 	}
-	cout << positive_data.size() << endl;
+	//cout << positive_data.size() << endl;
 
 	return 1;
 }
