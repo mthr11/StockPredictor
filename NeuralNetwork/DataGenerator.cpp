@@ -259,16 +259,30 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 	x_test.clear();
 	t_test.clear();
 
-	/* 5日モメンタムの計算 */
-	vector<float> momentum(daily.size());
-	int interval = 5;
-	float max_momentum = -FLT_MAX;
-	for (int i = 0; i < daily.size() - interval; i++) {
-		momentum[i] = daily[i][3] - daily[i + interval][3];
-		max_momentum = max(max_momentum, momentum[i]);
+	/* |終値 - 始値| / (高値 - 安値)の計算 */
+	vector<float> feature(daily.size());
+	for (int i = 0; i < daily.size(); i++) {
+		feature[i] = abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]);
 	}
 
-	float max_atr = *max_element(atr.begin(), atr.end());	// ATRの最大値
+	/* 変動率の計算 */
+	vector<float> vol(daily.size() - 1);
+	for (int i = 0; i < daily.size() - 1; i++) {
+		vol[i] = (daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3];
+	}
+
+	/* 5日モメンタムの計算 */
+	int interval = 5;
+	vector<float> mom(daily.size() - interval);
+	for (int i = 0; i < daily.size() - interval; i++) {
+		mom[i] = daily[i][3] - daily[i + interval][3];
+	}
+
+	/* 正規化 */
+	Math::normalize(feature);
+	Math::normalize(vol);
+	Math::normalize(mom);
+	Math::normalize(atr);
 
 	/*========== 訓練データに値を格納(最も古いデータと最新offset個のデータは使わない) ==========*/
 
@@ -309,11 +323,11 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 
 		/* 入力値 */
 		(*x).push_back(vector<float>());
-		(*x).back().push_back(abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]));	// |終値 - 始値| / (高値 - 安値)
-		(*x).back().push_back((daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3]);	// 変動率
-		(*x).back().push_back((daily[i + 1][3] - daily[i + 2][3]) * 100 / daily[i + 2][3]);	// 前日の変動率
-		(*x).back().push_back(momentum[i] / max_momentum);	// 5日モメンタム(最大値で正規化)
-		(*x).back().push_back(atr[i] / max_atr);	// ATR(最大値で正規化)
+		//(*x).back().push_back(feature[i]);	// |終値 - 始値| / (高値 - 安値)
+		(*x).back().push_back(vol[i]);	// 変動率
+		(*x).back().push_back(vol[i + 1]);	// 前日の変動率
+		(*x).back().push_back(mom[i]);	// 5日モメンタム
+		(*x).back().push_back(atr[i]);	// ATR
 	}
 
 	if (positive_data.size() < batch_size / 2) {

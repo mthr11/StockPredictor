@@ -94,4 +94,22 @@ public:
 
 		return result;
 	}
+
+	/* ê≥ãKâª */
+	template <class T>
+	static void normalize(vector<T>& x) {
+		double ave = 0.0, var = 0.0;
+
+		for (auto& e : x) {
+			ave += e;
+			var += e * e;
+		}
+
+		ave /= x.size();
+		var = var / x.size() - ave * ave;
+		
+		for (auto& e : x) {
+			e = (e - (float)ave) / (float)sqrt(var);
+		}
+	}
 };

@@ -33,12 +33,12 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 	int batch_size = 16;
 
 	if (state == EState::EInit) {
-		nnet = new MultiLayerPerceptron(5, 20, 2);
+		nnet = new MultiLayerPerceptron(4, 20, 2);
 		nnet->set_learning_rate(0.1f);
 
 		dg = new DataGenerator(api_key, symbol, percent, day, batch_size);
 
-		cout << "\nCalling API now...\n" << endl;
+		cout << "\nCalling API now...\n";
 
 		//if (!dg->generate_from_api(x_train, t_train, x_test, t_test)) {
 		//	return 0;
@@ -76,6 +76,7 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 
 	int iter_per_epoch = t_train.size() / batch_size;	// 1エポックあたりの学習回数
 
+	float loss = 0.f;
 	float train_prec;
 	float test_prec = 0.f;
 	int cnt = 0;
@@ -92,24 +93,26 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 			nnet->gradient_descent();
 
 			if (!(i % iter_per_epoch)) {
-				cout << "*";
-				if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
+				//cout << "*";
+				//if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
 
+				loss = nnet->loss(x_batch, t_batch);
 				train_prec = nnet->precision(x_batch, t_batch);
 				test_prec = nnet->precision(x_test, t_test);
 
-				//cout << "\nEpoch: " << i / iter_per_epoch + 1 << "\n";
+				cout << "\nEpoch: " << i / iter_per_epoch + 1 << "\n";
 				//cout << "\nAccuracy(train)\tPrecision(train)\tAccuracy(test)\tPrecision(test)\n";
-				//cout << setfill(' ') << setw(7) << nnet->loss(x_batch, t_batch);
-				//cout << setfill(' ') << setw(7) << nnet->accuracy(x_batch, t_batch);
-				//cout << setfill(' ') << setw(7) << train_prec;
-				//cout << setfill(' ') << setw(7) << nnet->accuracy(x_test, t_test);
-				//cout << setfill(' ') << setw(7) << test_prec << endl;
+				cout << setfill(' ') << setw(7) << loss;
+				cout << setfill(' ') << setw(7) << nnet->accuracy(x_batch, t_batch);
+				cout << setfill(' ') << setw(7) << train_prec;
+				cout << setfill(' ') << setw(7) << nnet->accuracy(x_test, t_test);
+				cout << setfill(' ') << setw(7) << test_prec << endl;
 				
-				if (train_prec > 0.9f) cnt++;
+				//if (train_prec > 0.9f) cnt++;
+				if (loss < 0.3f) cnt++;
 			}
 
-			if (cnt >= 15) {
+			if (cnt >= 5) {
 				break;
 			}
 		}

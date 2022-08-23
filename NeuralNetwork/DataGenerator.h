@@ -41,8 +41,8 @@ private:
 	int day;
 	int batch_size;
 
-	vector<vector<float>> daily;	// 日足データを保持するバッファ
-	vector<float> atr;	// ATRデータを保持するバッファ
+	vector<vector<float>> daily;	// 日足データ(最新順)を保持するバッファ
+	vector<float> atr;	// ATRデータ(最新順)を保持するバッファ
 	vector<int> positive_data, negative_data;	// それぞれ陽性、陰性のデータ番号を保持する
 };
 
