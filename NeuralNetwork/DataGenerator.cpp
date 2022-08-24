@@ -217,30 +217,32 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 
 
 	/*========== 5日ATRデータの読み込み ==========*/
-	file_name = symbol + "_daily_atr5.json";
+	if (true) {
+		file_name = symbol + "_daily_atr5.json";
 
-	j = load_json(file_name);
-	if (j == nullptr) {
-		return 0;
-	}
+		j = load_json(file_name);
+		if (j == nullptr) {
+			return 0;
+		}
 
-	itr = j.begin();
-	itr++;	// "Meta Data"を飛ばす
-	ritr = (*itr).rbegin();
+		itr = j.begin();
+		itr++;	// "Meta Data"を飛ばす
+		ritr = (*itr).rbegin();
 
-	/* データをvectorに格納 */
-	for (int t = 0; t < size; t++) {	// 日付オブジェクトをループ
-		string v;
-		stringstream ss;
-		float tmp;
+		/* データをvectorに格納 */
+		for (int t = 0; t < size; t++) {	// 日付オブジェクトをループ
+			string v;
+			stringstream ss;
+			float tmp;
 
-		v = (*ritr).begin().value().dump();
-		ss << v;
-		ss.ignore();
-		ss >> tmp;
-		atr.push_back(tmp);
+			v = (*ritr).begin().value().dump();
+			ss << v;
+			ss.ignore();
+			ss >> tmp;
+			atr.push_back(tmp);
 
-		ritr++;
+			ritr++;
+		}
 	}
 
 	if (!generate_data(x_train, t_train, x_test, t_test))
@@ -257,6 +259,12 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 	x_test.clear();
 	t_test.clear();
 
+	/* |終値 - 始値| / (高値 - 安値)の計算 */
+	vector<float> feature(daily.size());
+	for (int i = 0; i < daily.size(); i++) {
+		feature[i] = abs(daily[i][3] - daily[i][0]) / (daily[i][1] - daily[i][2]);
+	}
+
 	/* 変動率の計算 */
 	vector<float> vol(daily.size() - 1);
 	for (int i = 0; i < daily.size() - 1; i++) {
@@ -271,15 +279,15 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 	}
 
 	/* 正規化 */
+	Math::normalize(feature);
 	Math::normalize(vol);
 	Math::normalize(mom);
 	Math::normalize(atr);
 
-
 	/*========== 訓練データに値を格納(最も古いデータと最新offset個のデータは使わない) ==========*/
 
 	float theta = percent / 100.f;	// 閾値
-	int offset = day;	// 何日先のデータと比較するか
+	int offset = day;	// 何個先のデータと比較するか
 	int test_size = 60;
 	int test_p = 0;	// 評価データに入っている陽性データの数
 	int test_n = 0;	// 評価データに入っている陰性データの数
@@ -315,6 +323,7 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 
 		/* 入力値 */
 		(*x).push_back(vector<float>());
+		//(*x).back().push_back(feature[i]);	// |終値 - 始値| / (高値 - 安値)
 		(*x).back().push_back(vol[i]);	// 変動率
 		(*x).back().push_back(vol[i + 1]);	// 前日の変動率
 		(*x).back().push_back(mom[i]);	// 5日モメンタム
@@ -325,6 +334,7 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 		cout << "Unable to generate available training data.\nPlease try to change the parameters." << endl;
 		return 0;
 	}
+	//cout << positive_data.size() << endl;
 
 	return 1;
 }
