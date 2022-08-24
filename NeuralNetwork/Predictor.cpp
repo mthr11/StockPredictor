@@ -40,12 +40,12 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 
 		cout << "\nCalling API now...\n";
 
-		//if (!dg->generate_from_api(x_train, t_train, x_test, t_test)) {
-		//	return 0;
-		//}
-		if (!dg->generate_from_file(x_train, t_train, x_test, t_test)) {
+		if (!dg->generate_from_api(x_train, t_train, x_test, t_test)) {
 			return 0;
 		}
+		//if (!dg->generate_from_file(x_train, t_train, x_test, t_test)) {
+		//	return 0;
+		//}
 	}
 	else if (state == EState::EAgain) {
 		nnet->init_weight();
@@ -76,9 +76,8 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 
 	int iter_per_epoch = t_train.size() / batch_size;	// 1エポックあたりの学習回数
 
-	float loss = 0.f;
-	float train_prec;
-	float test_prec = 0.f;
+	float loss, train_prec, test_prec;
+	loss = train_prec = test_prec = 0.f;
 	int cnt = 0;
 
 	if (true) {
@@ -93,22 +92,21 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 			nnet->gradient_descent();
 
 			if (!(i % iter_per_epoch)) {
-				//cout << "*";
-				//if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
+				cout << "*";
+				if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
 
 				loss = nnet->loss(x_batch, t_batch);
 				train_prec = nnet->precision(x_batch, t_batch);
 				test_prec = nnet->precision(x_test, t_test);
 
-				cout << "\nEpoch: " << i / iter_per_epoch + 1 << "\n";
+				//cout << "\nEpoch: " << i / iter_per_epoch + 1 << "\n";
 				//cout << "\nAccuracy(train)\tPrecision(train)\tAccuracy(test)\tPrecision(test)\n";
-				cout << setfill(' ') << setw(7) << loss;
-				cout << setfill(' ') << setw(7) << nnet->accuracy(x_batch, t_batch);
-				cout << setfill(' ') << setw(7) << train_prec;
-				cout << setfill(' ') << setw(7) << nnet->accuracy(x_test, t_test);
-				cout << setfill(' ') << setw(7) << test_prec << endl;
+				//cout << setfill(' ') << setw(7) << loss;
+				//cout << setfill(' ') << setw(7) << nnet->accuracy(x_batch, t_batch);
+				//cout << setfill(' ') << setw(7) << train_prec;
+				//cout << setfill(' ') << setw(7) << nnet->accuracy(x_test, t_test);
+				//cout << setfill(' ') << setw(7) << test_prec << endl;
 				
-				//if (train_prec > 0.9f) cnt++;
 				if (loss < 0.3f) cnt++;
 			}
 
@@ -124,7 +122,7 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 		cout << "\n\n======RESULT======";
 		cout << "\nBetter to buy:    \t" << setfill(' ') << right << setw(8) << result[0][1] * 100 << "%";
 		cout << "\nNot better to buy:\t" << setfill(' ') << right << setw(8) << result[0][0] * 100 << "%";
-		cout << "\n(Epoch: " << i / iter_per_epoch + 1 << ", Precision: " << test_prec * 100 << "%)" << endl;
+		cout << "\n(Epoch: " << min(epoch, i / iter_per_epoch + 1) << ", Precision: " << test_prec * 100 << "%)" << endl;
 	}
 
 	return 1;

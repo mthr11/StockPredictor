@@ -167,7 +167,12 @@ float MultiLayerPerceptron::precision(const vector<vector<float>>& input_data, c
 			cnt_tp++;
 	}
 
-	return (float)cnt_tp / (float)cnt_tpfp;
+	if (cnt_tpfp == 0) {
+		return 0.f;
+	}
+	else {
+		return (float)cnt_tp / (float)cnt_tpfp;
+	}
 }
 
 void MultiLayerPerceptron::gradient(const vector<vector<float>>& input_data, const vector<int>& train_data)
