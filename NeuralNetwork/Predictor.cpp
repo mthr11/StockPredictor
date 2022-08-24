@@ -43,33 +43,13 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 		if (!dg->generate_from_api(x_train, t_train, x_test, t_test)) {
 			return 0;
 		}
+		//// デバッグ用
 		//if (!dg->generate_from_file(x_train, t_train, x_test, t_test)) {
 		//	return 0;
 		//}
 	}
 	else if (state == EState::EAgain) {
 		nnet->init_weight();
-	}
-
-	if (!true) {
-		int i = 0;
-		for (auto p : x_train) {
-			cout << i + 1 << ":\t";
-			for (auto q : p)
-				cout << setfill(' ') << setw(10) << q << " ";
-			cout << t_train[i] << endl;
-			i++;
-		}
-	}
-	if (!true) {
-		int i = 0;
-		for (auto p : x_test) {
-			cout << i + 1 << ":\t";
-			for (auto q : p)
-				cout << setfill(' ') << setw(10) << q << " ";
-			cout << t_test[i] << endl;
-			i++;
-		}
 	}
 
 	cout << "\nLearning now...\n\n";
@@ -80,50 +60,40 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 	loss = train_prec = test_prec = 0.f;
 	int cnt = 0;
 
-	if (true) {
-		cout << fixed << setprecision(4);
+	cout << fixed << setprecision(4);
 
-		/* 学習 */
-		int i;
-		for (i = 0; i < iter_per_epoch * epoch; i++) {
-			dg->generate_minibatch(x_train, t_train, x_batch, t_batch, batch_size);
+	/*========== 学習 ==========*/
+	int i;
+	for (i = 0; i < iter_per_epoch * epoch; i++) {
+		dg->generate_minibatch(x_train, t_train, x_batch, t_batch, batch_size);
 			
-			nnet->gradient(x_batch, t_batch);
-			nnet->gradient_descent();
+		nnet->gradient(x_batch, t_batch);
+		nnet->gradient_descent();
 
-			if (!(i % iter_per_epoch)) {
-				cout << "*";
-				if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
+		if (!(i % iter_per_epoch)) {
+			cout << "*";
+			if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
 
-				loss = nnet->loss(x_batch, t_batch);
-				train_prec = nnet->precision(x_batch, t_batch);
-				test_prec = nnet->precision(x_test, t_test);
-
-				//cout << "\nEpoch: " << i / iter_per_epoch + 1 << "\n";
-				//cout << "\nAccuracy(train)\tPrecision(train)\tAccuracy(test)\tPrecision(test)\n";
-				//cout << setfill(' ') << setw(7) << loss;
-				//cout << setfill(' ') << setw(7) << nnet->accuracy(x_batch, t_batch);
-				//cout << setfill(' ') << setw(7) << train_prec;
-				//cout << setfill(' ') << setw(7) << nnet->accuracy(x_test, t_test);
-				//cout << setfill(' ') << setw(7) << test_prec << endl;
+			loss = nnet->loss(x_batch, t_batch);
+			train_prec = nnet->precision(x_batch, t_batch);
+			test_prec = nnet->precision(x_test, t_test);
 				
-				if (loss < 0.3f) cnt++;
-			}
-
-			if (cnt >= 5) {
-				break;
-			}
+			if (loss < 0.3f) cnt++;
 		}
 
-		/* 推論結果出力 */
-		vector<vector<float>> today = { dg->getdaily()[0] };
-		vector<vector<float>> result = nnet->predict(today);
-
-		cout << "\n\n======RESULT======";
-		cout << "\nBetter to buy:    \t" << setfill(' ') << right << setw(8) << result[0][1] * 100 << "%";
-		cout << "\nNot better to buy:\t" << setfill(' ') << right << setw(8) << result[0][0] * 100 << "%";
-		cout << "\n(Epoch: " << min(epoch, i / iter_per_epoch + 1) << ", Precision: " << test_prec * 100 << "%)" << endl;
+		if (cnt >= 5) {
+			break;
+		}
 	}
+
+	/* 推論結果出力 */
+	vector<vector<float>> today = { dg->getdaily()[0] };
+	vector<vector<float>> result = nnet->predict(today);
+
+	cout << "\n\n======RESULT======";
+	cout << "\nBetter to buy:    \t" << setfill(' ') << right << setw(8) << result[0][1] * 100 << "%";
+	cout << "\nNot better to buy:\t" << setfill(' ') << right << setw(8) << result[0][0] * 100 << "%";
+	cout << "\n(Epoch: " << min(epoch, i / iter_per_epoch + 1) << ", Precision: " << test_prec * 100 << "%)" << endl;
 
 	return 1;
 }
