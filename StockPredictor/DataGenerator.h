@@ -22,7 +22,7 @@ public:
 	// API呼び出し
 	json call_api_daily();
 	json call_api_atr();
-	// ファイル読み込み
+	// ファイル読み込み(デバッグ用)
 	json load_json(const string& file_name);
 
 	// 各種データを生成する

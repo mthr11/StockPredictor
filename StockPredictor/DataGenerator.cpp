@@ -95,6 +95,7 @@ json DataGenerator::call_api_atr()
 	return j;
 }
 
+// デバッグ用
 json DataGenerator::load_json(const string& file_name)
 {
 	ifstream ifs(file_name);
@@ -176,13 +177,14 @@ int DataGenerator::generate_from_api(vector<vector<float>>& x_train, vector<int>
 	return 1;
 }
 
+// デバッグ用
 int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int>& t_train
 		, vector<vector<float>>& x_test, vector<int>& t_test)
 {
 	int size = 300;	// 読み込むデータ数(130 = 約半年分)
 
 	/*========== 日足データの読み込み ==========*/
-	string file_name = symbol + "_daily_full.json";
+	string file_name = "Learning/" + symbol + "_daily_full.json";
 
 	json j = load_json(file_name);
 	if (j == nullptr) {
@@ -214,7 +216,7 @@ int DataGenerator::generate_from_file(vector<vector<float>>& x_train, vector<int
 
 
 	/*========== 5日ATRデータの読み込み ==========*/
-	file_name = symbol + "_daily_atr5.json";
+	file_name = "Learning/" + symbol + "_daily_atr5.json";
 
 	j = load_json(file_name);
 	if (j == nullptr) {
