@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
-#include <curl.h>
+#include <curl/curl.h>
 
 DataGenerator::DataGenerator(const string& key, const string& symb, const float& per, const int& d, const int& batch)
 	: api_key(key)
