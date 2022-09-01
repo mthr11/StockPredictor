@@ -17,7 +17,7 @@ public:
 	static size_t write(char* data, size_t size, size_t nmemb, string* buffer);
 
 	// ゲッター
-	vector<vector<float>> getdaily() { return daily; }
+	vector<float> getlatest() { return latest; }
 
 	// API呼び出し
 	json call_api_daily();
@@ -44,5 +44,7 @@ private:
 	vector<vector<float>> daily;	// 日足データ(最新順)を保持するバッファ
 	vector<float> atr;	// ATRデータ(最新順)を保持するバッファ
 	vector<int> positive_data, negative_data;	// それぞれ陽性、陰性のデータ番号を保持する
+
+	vector<float> latest;	// 推論用の最新データ
 };
 

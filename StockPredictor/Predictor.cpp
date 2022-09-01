@@ -33,7 +33,7 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 	int batch_size = 16;
 
 	if (state == EState::EInit) {
-		nnet = new MultiLayerPerceptron(4, 20, 2);
+		nnet = new MultiLayerPerceptron(5, 20, 2);
 		nnet->set_learning_rate(0.1f);
 
 		dg = new DataGenerator(api_key, symbol, percent, day, batch_size);
@@ -56,7 +56,8 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 
 	int iter_per_epoch = t_train.size() / batch_size;	// 1エポックあたりの学習回数
 
-	float loss, test_prec;
+	float loss, test_acc, test_prec;
+	float prev_test_acc = 0.f;
 	loss = test_prec = 0.f;
 	int cnt = 0;
 
@@ -75,24 +76,33 @@ int Predictor::learn_and_predict(const string& api_key, const string& symbol, co
 			if ((i / iter_per_epoch + 1) % 50 == 0) cout << "\n";
 
 			loss = nnet->loss(x_batch, t_batch);
-				
-			if (loss < 0.3f) cnt++;
+			test_acc = nnet->accuracy(x_test, t_test);
+			//// デバッグ用
+			//cout << "Epoch: " << i / iter_per_epoch + 1 << "\n";
+			//cout << loss << "\t";
+			//cout << nnet->accuracy(x_batch, t_batch) << "\t";
+			//cout << nnet->precision(x_batch, t_batch) << "\t";
+			//cout << test_acc << "\t";
+			//cout << nnet->precision(x_test, t_test) << endl;
+
+			if (test_acc < prev_test_acc) cnt++;
+			prev_test_acc = test_acc;
 		}
 
-		if (cnt >= 5) {
+		if (cnt >= 10 && loss < 0.3f) {
 			break;
 		}
 	}
 
 	/* 推論結果出力 */
-	vector<vector<float>> today = { dg->getdaily()[0] };
-	vector<vector<float>> result = nnet->predict(today);
+	vector<vector<float>> latest = { dg->getlatest() };
+	vector<vector<float>> result = nnet->predict(latest);
 	
 	test_prec = nnet->precision(x_test, t_test);
 
 	cout << "\n\n======RESULT======";
-	cout << "\nBetter to buy:    \t" << setfill(' ') << right << setw(8) << result[0][1] * 100 << "%";
-	cout << "\nNot better to buy:\t" << setfill(' ') << right << setw(8) << result[0][0] * 100 << "%";
+	cout << "\nRise:    \t" << setfill(' ') << right << setw(8) << result[0][1] * 100 << "%";
+	cout << "\nNot rise:\t" << setfill(' ') << right << setw(8) << result[0][0] * 100 << "%";
 	cout << "\n(Epoch: " << min(epoch, i / iter_per_epoch + 1) << ", Precision: " << test_prec * 100 << "%)" << endl;
 
 	return 1;

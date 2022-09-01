@@ -60,14 +60,7 @@ json DataGenerator::call_api_daily()
 json DataGenerator::call_api_atr()
 {
 	string buf;
-	string url;
-
-	if (api_key == "demo") {
-		url = "https://www.alphavantage.co/query?function=ATR&symbol=" + symbol + "&interval=daily&time_period=14&apikey=" + api_key;
-	}
-	else {
-		url = "https://www.alphavantage.co/query?function=ATR&symbol=" + symbol + "&interval=daily&time_period=5&apikey=" + api_key;
-	}
+	string url = "https://www.alphavantage.co/query?function=ATR&symbol=" + symbol + "&interval=daily&time_period=14&apikey=" + api_key;
 
 	/* curlのセットアップ */
 	CURL* curl = curl_easy_init();
@@ -146,7 +139,7 @@ int DataGenerator::generate_from_api(vector<vector<float>>& x_train, vector<int>
 	}
 
 
-	/*========== 5日ATRデータの読み込み ==========*/
+	/*========== 14日ATRデータの読み込み ==========*/
 	j = call_api_atr();
 	if (j == nullptr) {
 		return 0;
@@ -255,6 +248,7 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 	t_train.clear();
 	x_test.clear();
 	t_test.clear();
+	latest.clear();
 
 	/* 変動率の計算 */
 	vector<float> vol(daily.size() - 1);
@@ -262,8 +256,8 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 		vol[i] = (daily[i][3] - daily[i + 1][3]) * 100 / daily[i + 1][3];
 	}
 
-	/* 5日モメンタムの計算 */
-	int interval = 5;
+	/* 10日モメンタムの計算 */
+	int interval = 10;
 	vector<float> mom(daily.size() - interval);
 	for (int i = 0; i < daily.size() - interval; i++) {
 		mom[i] = daily[i][3] - daily[i + interval][3];
@@ -279,11 +273,11 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 
 	float theta = percent / 100.f;	// 閾値
 	int offset = day;	// 何日先のデータと比較するか
-	int test_size = 60;
+	int test_size = 70;
 	int test_p = 0;	// 評価データに入っている陽性データの数
 	int test_n = 0;	// 評価データに入っている陰性データの数
 
-	for (int i = daily.size() - 1 - interval; i >= offset; i--) {	// 日付が古い順にデータを参照
+	for (int i = daily.size() - 2 - interval; i >= offset; i--) {	// 日付が古い順にデータを参照
 		vector<vector<float>>* x = &x_train;
 		vector<int>* t = &t_train;
 
@@ -316,14 +310,22 @@ int DataGenerator::generate_data(vector<vector<float>>& x_train, vector<int>& t_
 		(*x).push_back(vector<float>());
 		(*x).back().push_back(vol[i]);	// 変動率
 		(*x).back().push_back(vol[i + 1]);	// 前日の変動率
-		(*x).back().push_back(mom[i]);	// 5日モメンタム
-		(*x).back().push_back(atr[i]);	// ATR
+		(*x).back().push_back(mom[i]);	// 10日モメンタム
+		(*x).back().push_back(mom[i + 1]);	// 前日の10日モメンタム
+		(*x).back().push_back(atr[i]);	// 14日ATR
 	}
 
 	if (positive_data.size() < batch_size / 2) {
 		cout << "Unable to generate available training data.\nPlease try to change the parameters." << endl;
 		return 0;
 	}
+
+	/* 推論用の最新データを生成 */
+	latest.push_back(vol[0]);
+	latest.push_back(vol[1]);
+	latest.push_back(mom[0]);
+	latest.push_back(mom[1]);
+	latest.push_back(atr[0]);
 
 	return 1;
 }
